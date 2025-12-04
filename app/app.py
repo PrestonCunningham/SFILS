@@ -1,20 +1,28 @@
 from db import get_connection
 
-MENU = 
-
-""" 
-This shows the application options:
+MENU = """ 
+=========================================================
+ SFILS Database Application
+=========================================================
 1. Show total patrons by type
 2. Show total checkouts by library branch
 3. Show patron distribution inside vs outside SF County
 4. Show checkouts by age range
 5. Exit
-"""
+=========================================================
+Choose an option: """
+
 
 def query_patron_type_stats(cur):
-  sql = 
-  """
-  """
+  sql = """
+    SELECT
+        pt.patron_type_definition,
+        COUNT(*) AS num_patrons
+    FROM usage_fact u
+    JOIN patron_type pt USING (patron_type_code)
+    GROUP BY pt.patron_type_definition
+    ORDER BY num_patrons DESC;
+    """
   cur.executable(sql)
   rows = cur.fetchall()
   print("\nPatrons by Type:")
@@ -24,9 +32,15 @@ def query_patron_type_stats(cur):
   print()
 
 def query_branch_checkouts(cur):
-  sql = 
-  """
-  """
+  sql = """
+    SELECT
+        lb.home_library_definition,
+        SUM(u.checkout_total) AS total_checkouts
+    FROM usage_fact u
+    JOIN library_branch lb USING (home_library_code)
+    GROUP BY lb.home_library_definition
+    ORDER BY total_checkouts DESC;
+    """
   cur.executable(sql)
   rows = cur.fetchall()
     print("\nCheckouts by Library Branch:")
@@ -37,9 +51,17 @@ def query_branch_checkouts(cur):
     print()
 
 def query_county_distribution(cur):
-  sql = 
-  """
-  """
+  sql = """
+    SELECT
+        CASE
+            WHEN within_sf_county = 1 THEN 'Within SF County'
+            ELSE 'Outside SF County'
+        END AS county_status,
+        COUNT(*) AS num_patrons,
+        SUM(checkout_total) AS total_checkouts
+    FROM usage_fact
+    GROUP BY within_sf_county;
+    """
   cur.execute(sql)
     rows = cur.fetchall()
     print("\nSF County Distribution:")
@@ -49,8 +71,14 @@ def query_county_distribution(cur):
     print()
 
 def query_age_range_stats(cur):
-    sql =
-    """
+    sql = """
+    SELECT
+        ar.age_range_label,
+        SUM(u.checkout_total) AS total_checkouts
+    FROM usage_fact u
+    JOIN age_range ar USING (age_range_id)
+    GROUP BY ar.age_range_label
+    ORDER BY total_checkouts DESC;
     """
     cur.execute(sql)
     rows = cur.fetchall()
