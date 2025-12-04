@@ -1,6 +1,6 @@
 from db import get_connection
 
-menu = 
+MENU = 
 
 """ 
 This shows the application options:
