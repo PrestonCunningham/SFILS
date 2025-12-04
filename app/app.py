@@ -1,6 +1,6 @@
 from db import get_connection
 
-MENU = """ 
+MENU = """
 =========================================================
  SFILS Database Application
 =========================================================
@@ -14,7 +14,7 @@ Choose an option: """
 
 
 def query_patron_type_stats(cur):
-  sql = """
+    sql = """
     SELECT
         pt.patron_type_definition,
         COUNT(*) AS num_patrons
@@ -23,16 +23,17 @@ def query_patron_type_stats(cur):
     GROUP BY pt.patron_type_definition
     ORDER BY num_patrons DESC;
     """
-  cur.executable(sql)
-  rows = cur.fetchall()
-  print("\nPatrons by Type:")
-  print("====================")
-  for r in rows:
-    print(f"{r[0]:25} : {r[1]}")
-  print()
+    cur.execute(sql)
+    rows = cur.fetchall()
+    print("\nPatrons by Type:")
+    print("====================")
+    for r in rows:
+        print(f"{r[0]:25} : {r[1]}")
+    print()
+
 
 def query_branch_checkouts(cur):
-  sql = """
+    sql = """
     SELECT
         lb.home_library_definition,
         SUM(u.checkout_total) AS total_checkouts
@@ -41,17 +42,18 @@ def query_branch_checkouts(cur):
     GROUP BY lb.home_library_definition
     ORDER BY total_checkouts DESC;
     """
-  cur.executable(sql)
-  rows = cur.fetchall()
+    cur.execute(sql)
+    rows = cur.fetchall()
     print("\nCheckouts by Library Branch:")
-    print("====================")
+    print("==================")
     for r in rows:
         branch = r[0] if r[0] else "(Unknown Branch)"
         print(f"{branch:30} : {r[1]}")
     print()
 
+
 def query_county_distribution(cur):
-  sql = """
+    sql = """
     SELECT
         CASE
             WHEN within_sf_county = 1 THEN 'Within SF County'
@@ -62,13 +64,14 @@ def query_county_distribution(cur):
     FROM usage_fact
     GROUP BY within_sf_county;
     """
-  cur.execute(sql)
+    cur.execute(sql)
     rows = cur.fetchall()
     print("\nSF County Distribution:")
     print("====================")
     for r in rows:
         print(f"{r[0]:22} | Patrons: {r[1]:6} | Checkouts: {r[2]}")
     print()
+
 
 def query_age_range_stats(cur):
     sql = """
@@ -89,11 +92,12 @@ def query_age_range_stats(cur):
         print(f"{label:20} : {r[1]}")
     print()
 
-def main():
-  conn = get_connection()
-  cur = conn.cursor()
 
-  while True:
+def main():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    while True:
         choice = input(MENU).strip()
 
         if choice == "1":
@@ -113,6 +117,6 @@ def main():
     cur.close()
     conn.close()
 
+
 if __name__ == "__main__":
     main()
-  
